@@ -1,5 +1,7 @@
 # SOC Home Lab — MITRE ATT&CK Detection Lab
 
+> **Note:** Detection gaps matter as much as detections — this lab documents both what Wazuh caught and what it missed, and why.
+
 ## Overview
 A hands-on SOC home lab built to simulate and detect real cyberattacks using the MITRE ATT&CK framework.
 
@@ -37,3 +39,6 @@ A hands-on SOC home lab built to simulate and detect real cyberattacks using the
 - Kali Linux
 - Hydra
 - VirtualBox
+
+📄 Full documentation: [documentation.md](documentation.md)
+📄 Detailed findings: [key-findings.md](key-findings.md)
