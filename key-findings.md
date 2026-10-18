@@ -13,9 +13,9 @@
 | T1484 | Domain Policy Modification | Modified local group membership | 3 | 4732 | Detected ✅ Level 12 |
 | T1562.001 | Impair Defenses | Stopped and restarted Wazuh agent service | 2 | N/A | Detected ✅ High |
 | T1059 | Command Execution | PowerShell recon commands | 0 | 4688 | Not Detected ❌ |
-| T1110 | Brute Force | Hydra SMB wordlist attack | 0 | 4625 | Not Detected ❌ |
+| T1110 | Brute Force | Hydra SMB wordlist attack | 4,752 | 4625 | Initially Not Detected → Detected After Fix ✅ Level 10 |
 
-**Overall Detection Rate: 4/6 techniques — 67%**
+**Overall Detection Rate: 5/6 techniques — 83%**
 
 ---
 
@@ -100,21 +100,27 @@ indistinguishable from normal administrative activity.
 
 ---
 
-### Finding 6 — T1110 Brute Force Was Completely Silent
+### Finding 6 — T1110 Brute Force: Audit Policy Was the Missing Layer
 Hydra executed thousands of SMB password attempts against 
-Windows 7. Zero alerts were generated in Wazuh.
+Windows 7. Initially zero alerts were generated in Wazuh.
 
-Root cause: Event ID 4625 (failed logon) was not consistently 
-captured from the SMB service. Without reliable failed logon 
-events, no threshold-based correlation was possible.
+Root cause: Audit policy for logon events was disabled by default.
+Event ID 4625 (failed logon) was not being generated at the OS 
+level — so Wazuh had nothing to receive or correlate.
 
-Effective brute force detection requires three layers:
-1. Consistent Event ID 4625 logging from all exposed services
-2. Threshold rule — example: 5+ failures from same IP within 60 seconds
-3. Automated response — IP block or escalation trigger
+Fix applied:
+```bash
+auditpol /set /subcategory:"Logon" /failure:enable
+```
 
-Without all three layers, brute force is completely invisible 
-to the SIEM regardless of attack volume.
+Result after fix:
+- 4,752 Event ID 4625 entries generated
+- Wazuh flagged T1110 — Brute Force — Level 10
+- 477 pages of correlated alerts
+
+The SIEM was never broken. The OS was simply not logging.
+This finding reinforces the core lesson of this lab: validate 
+your log sources before assuming your detection is functional.
 
 ---
 
@@ -127,7 +133,7 @@ to the SIEM regardless of attack volume.
 | T1484 — Policy Modification | rule.mitre.id: T1484 + Level: 12 | Active ✅ |
 | T1562.001 — Impair Defenses | rule.mitre.id: T1562.001 | Active ✅ |
 | T1059 — Command Execution | EventID: 4688 | Not Available on Windows 7 ❌ |
-| T1110 — Brute Force | EventID: 4625 + threshold rule | Missing correlation layer ❌ |
+| T1110 — Brute Force | EventID: 4625 + threshold rule | Active after audit policy fix ✅ |
 
 ---
 
@@ -136,7 +142,7 @@ to the SIEM regardless of attack volume.
 | Gap | Impact | Recommended Fix |
 |-----|--------|----------------|
 | Windows 7 process creation logging | T1059 undetectable — zero visibility | Upgrade to Windows 10+ or deploy Sysmon |
-| SMB failed logon aggregation | Brute force completely invisible | Enable threshold-based correlation rules in Wazuh |
+| Default audit policy disabled | Brute force and logon failures invisible until manually enabled | Enable audit policy as first step in any SOC deployment |
 | No behavioral baselining | T1078 indistinguishable from normal logins | Implement user behavior analytics |
 | Single agent monitoring point | Agent stop creates blind spot | Deploy backup telemetry and centralized log storage |
 
@@ -150,11 +156,11 @@ to the SIEM regardless of attack volume.
 | Target OS | Windows 7 | Windows 10 |
 | Hypervisor | VirtualBox | KVM |
 | T1059 Events | 0 | 114 |
-| T1110 Events | 0 | 2 |
+| T1110 Events | 4,752 (after audit fix) | 2 |
 | T1078 Events | 8 | 8 |
 | Techniques Tested | 6 | 3 |
-| Techniques Detected | 4/6 (67%) | 3/3 (100%) |
-| Detection Gaps Documented | 2 critical gaps with root cause | Not documented |
+| Techniques Detected | 5/6 (83%) | 3/3 (100%) |
+| Detection Gaps Documented | 1 permanent gap + 1 resolved | Not documented |
 | Key Advantage | Gap analysis + OS telemetry tracing | Higher event volume on modern OS |
 
 **Conclusion:** Detection capability is not determined by tool 
@@ -170,8 +176,8 @@ This lab demonstrated that a correctly configured SIEM can still
 fail to detect real attacks — not because of tool limitations, 
 but because of gaps in the underlying telemetry pipeline.
 
-Four out of six MITRE ATT&CK techniques were successfully detected.
-Two were not — and tracing the root cause of those failures 
+Five out of six MITRE ATT&CK techniques were successfully detected.
+One was not — and tracing the root cause of that failure 
 produced more actionable insight than the successful detections.
 
 The real SOC skill is not generating alerts.
