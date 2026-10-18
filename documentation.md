@@ -366,27 +366,31 @@ Hydra initiated a brute force attack against the Windows 7 SMB
 service on port 445 using the rockyou wordlist (14 million passwords).
 The attack ran for several minutes before being stopped manually.
 
-**Detection Result:** Not Detected ❌
+**Detection Result:** Initially Not Detected → Detected After Fix ✅
 
 **Root Cause:**
-SMB on Windows 7 in this lab configuration did not generate 
-consistent Event ID 4625 (failed logon) entries that Wazuh could 
-aggregate. Without multiple failed logon events being forwarded 
-to Wazuh, no threshold-based brute force correlation was possible.
+Audit policy for logon events was disabled by default on Windows 7.
+Event ID 4625 (failed logon) was not being generated at the OS level,
+so Wazuh had nothing to receive or correlate.
 
-**Wazuh Alert Summary:**
-- No brute force correlation alert triggered
-- Failed logon attempts not aggregated
-- No threshold-based detection observed
+**Fix Applied:**
+```bash
+auditpol /set /subcategory:"Logon" /failure:enable
+```
+
+**Result After Fix:**
+- 4,752 Event ID 4625 entries generated
+- Wazuh flagged T1110 — Brute Force — Level 10
+- 477 pages of correlated alerts
 
 **Key Insight:**
 Brute force detection is not about detecting a single failed login —
 it requires correlating multiple failures within a time window from 
-the same source. Without that aggregation, each failed attempt looks
-like an isolated harmless event. In production environments, this 
-requires tuned threshold rules: for example, "5 failed logins from 
-the same IP within 60 seconds = brute force alert." The absence of 
-this detection in the lab highlights a missing correlation layer.
+the same source. The initial detection failure was not a SIEM problem
+— it was a logging foundation problem. Once audit policy was enabled,
+Wazuh immediately correlated the events and flagged the attack at 
+Level 10 severity. The lesson: before trusting your SIEM is blind,
+verify your OS is actually generating the logs.
 
 ---
 
@@ -444,9 +448,9 @@ maintain visibility even when endpoint agents are compromised.
 | T1484 | Domain Policy Modification | Detected ✅ | High (L12) | Highest severity alert — Administrators group change flagged |
 | T1562.001 | Impair Defenses | Detected ✅ | High | Agent service interruption detected in real time |
 | T1059 | Command Execution | Not Detected ❌ | N/A | Windows 7 telemetry gap — process creation not forwarded |
-| T1110 | Brute Force | Not Detected ❌ | N/A | SMB failed logons not aggregated — no threshold correlation |
+| T1110 | Brute Force | Initially Not Detected → Detected After Fix ✅ | Level 10 | Audit policy disabled by default — enabling Event ID 4625 logging revealed 4,752 events |
 
-**Detection Rate: 4/6 techniques — 67%**
+**Detection Rate: 5/6 techniques — 83%**
 
 ---
 
@@ -503,9 +507,9 @@ detection strategy.
 - T1484 — Domain Policy Modification ✅
 - T1562.001 — Impair Defenses ✅
 - T1059 — Command Execution ❌ (Windows 7 telemetry gap)
-- T1110 — Brute Force ❌ (SMB correlation missing)
+- T1110 — Brute Force ✅ (Detected after audit policy fix — 4,752 events)
 
-**Detection Rate: 4/6 — 67%**
+**Detection Rate: 5/6 — 83%**
 
 **Key Tools Used:**
 - Wazuh 4.7.5 (SIEM)
