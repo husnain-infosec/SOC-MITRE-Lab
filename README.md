@@ -5,6 +5,8 @@
 ## Overview
 A hands-on SOC home lab built to simulate and detect real cyberattacks using the MITRE ATT&CK framework.
 
+![Wazuh dashboard overview](screenshots/soc-lab-wazuh-dashboard-overview.png)
+
 ## Lab Setup
 | Component | Details |
 |-----------|---------|
@@ -22,6 +24,8 @@ A hands-on SOC home lab built to simulate and detect real cyberattacks using the
 | T1562.001 | Impair Defenses | Detected (Wazuh agent stop/start) |
 | T1059 | Command Execution | Not Detected (Windows 7 OS limitation) |
 | T1110 | Brute Force | Initially not detected (audit policy disabled) → Detected after fix: 4,752 events, Wazuh Level 10 |
+
+![Wazuh dashboard alerts view](screenshots/soc-lab-wazuh-dashboard-alerts-view.png)
 
 ## Key Findings
 - Default Windows logging is not SOC ready — audit policies must be manually configured
