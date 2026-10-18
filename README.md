@@ -19,13 +19,14 @@ A hands-on SOC home lab built to simulate and detect real cyberattacks using the
 | T1078 | Valid Accounts | Detected |
 | T1098 | Account Manipulation | Detected |
 | T1484 | Domain Policy Modification | Detected |
-| T1059 | Command Execution | Not Detected (Windows 7 limitation) |
-| T1110 | Brute Force | Not Detected (SMB blocked) |
+| T1059 | Command Execution | Not Detected (Windows 7 OS limitation) |
+| T1110 | Brute Force | Initially not detected (audit policy disabled) → Detected after fix: 4,752 events, Wazuh Level 10 |
 
 ## Key Findings
 - Default Windows logging is not SOC ready — audit policies must be manually configured
 - T1078 and T1098 generated clear alerts in Wazuh
 - T1059 process creation events not captured on Windows 7 — known OS limitation
+- T1110 brute force initially missed due to disabled audit policy — enabling Event ID 4625 logging revealed 4,752 failed logon attempts flagged as T1110 Level 10
 - Detection gaps are as important to document as detections
 
 ## Challenges Faced
