@@ -168,6 +168,10 @@ simulating credential-based lateral movement on the same machine.
 | Severity | Level 3 (Medium) |
 | Agent | Husnain-PC (192.168.56.102) |
 
+![T1078 Valid Accounts - Wazuh alert](screenshots/t1078-valid-accounts-wazuh-alert.png)
+![T1078 Valid Accounts - Event log 4624](screenshots/t1078-valid-accounts-event-log-4624.png)
+![T1078 Valid Accounts - Alert details](screenshots/t1078-valid-accounts-alert-details.png)
+
 **Key Insight:**
 Wazuh correctly identified the logon event and mapped it to T1078.
 However, valid account logins are indistinguishable from legitimate 
@@ -209,6 +213,10 @@ change event — two separate log entries that Wazuh correlated.
 | Event Type | User Account Created + Group Membership Change |
 | Severity | Medium |
 | Rule | Local group modification activity detected |
+
+![T1098 Account Manipulation - Wazuh alert](screenshots/t1098-account-manipulation-wazuh-alert.png)
+![T1098 Account Manipulation - Event log 4728](screenshots/t1098-account-manipulation-event-log-4728.png)
+![T1098 Account Manipulation - Alert details](screenshots/t1098-account-manipulation-alert-details.png)
 
 **Key Insight:**
 Privilege escalation through account manipulation is one of the most 
@@ -253,6 +261,9 @@ privileged local groups.
 | Event Type | Administrators Group Membership Change |
 | Severity | High (Level 12) |
 | Rule Trigger | Local privileged group modification |
+
+![T1484 Domain Policy Modification - Wazuh alert](screenshots/t1484-domain-policy-modification-wazuh-alert.png)
+![T1484 Domain Policy Modification - Alert details](screenshots/t1484-domain-policy-modification-alert-details.png)
 
 **Key Insight:**
 This was the highest severity alert generated in the lab — Level 12.
@@ -427,6 +438,10 @@ endpoint monitoring before further malicious activity.
 | Severity | High |
 | Rule Trigger | Wazuh agent service interruption |
 | Event Source | Windows Service Control Manager |
+
+![T1562.001 Impair Defenses - Wazuh alert](screenshots/t1562-001-impair-defenses-wazuh-alert.png)
+![T1562.001 Impair Defenses - Agent stopped](screenshots/t1562-001-impair-defenses-agent-stopped.png)
+![T1562.001 Impair Defenses - Agent restarted](screenshots/t1562-001-impair-defenses-agent-restarted.png)
 
 **Key Insight:**
 Wazuh successfully detected its own agent being stopped — 
