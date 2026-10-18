@@ -394,6 +394,11 @@ auditpol /set /subcategory:"Logon" /failure:enable
 - Wazuh flagged T1110 — Brute Force — Level 10
 - 477 pages of correlated alerts
 
+![T1110 Brute Force - Event log before fix, 0 events](screenshots/t1110-brute-force-event-log-before-fix-0-events.png)
+![T1110 Brute Force - Event log after fix, 4752 events](screenshots/t1110-brute-force-event-log-after-fix-4752-events.png)
+![T1110 Brute Force - Wazuh alerts list](screenshots/t1110-brute-force-wazuh-alerts-list.png)
+![T1110 Brute Force - Wazuh dashboard, 4752 failures](screenshots/t1110-brute-force-wazuh-dashboard-4752-failures.png)
+
 **Key Insight:**
 Brute force detection is not about detecting a single failed login —
 it requires correlating multiple failures within a time window from 
